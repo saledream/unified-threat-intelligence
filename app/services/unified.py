@@ -60,6 +60,9 @@ async def enrich_indicator_all(indicator: str) -> dict:
             reps[hostkind], metas[hostkind] = hc['indicator'], hc
     jobs, skipped = [], []
     for cap in CAPABILITIES:
+        if cap.policy_status(overrides) == 'disabled':
+            skipped.append({'provider': cap.name, 'status': 'disabled'})
+            continue
         applicable = [(t, v) for t, v in reps.items() if t in cap.types]
         if not applicable:
             skipped.append({'provider': cap.name, 'status': 'unsupported_indicator_type'})

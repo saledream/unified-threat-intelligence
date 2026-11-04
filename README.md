@@ -21,6 +21,8 @@ docker compose up -d --build
 
 Open http://localhost:3005. No administrator bootstrap or database account is needed. Local MCP is available at http://127.0.0.1:3002/mcp. The API health endpoint is http://localhost:8000/api/health.
 
+Authenticated Shodan and Censys are paused after access failures; certificate transparency is paused after repeated timeouts, and Spur until a usable token is configured. These integrations are disabled by default. Keyless Shodan InternetDB remains available. Disabled providers are omitted from search results; credentials are retained server-side for a future access check.
+
 ## Provider keys
 
 Edit `.env` locally, or the Environment editor when using Dokploy. Leave unused providers blank.

@@ -41,6 +41,8 @@ async def test_forbidden_is_not_clean_or_keyless_fallback(monkeypatch):
 def test_authenticated_and_keyless_capabilities_separate(monkeypatch):
     auth=next(c for c in CAPABILITIES if c.name=='shodan')
     free=next(c for c in CAPABILITIES if c.name=='shodan_internetdb')
+    assert auth.policy_status()=='disabled'
+    monkeypatch.setenv('PROVIDER_SHODAN_ENABLED','true')
     assert auth.policy_status()=='not_configured'
     assert auth.provenance_group==free.provenance_group=='shodan'
     monkeypatch.setenv('SHODAN_API_KEY','offline')

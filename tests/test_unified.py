@@ -28,6 +28,14 @@ async def test_private_ip_is_blocked(routed):
     routed.assert_not_awaited()
 
 @pytest.mark.asyncio
+async def test_disabled_provider_is_not_queried_or_counted(routed, monkeypatch):
+    monkeypatch.setattr(Capability, 'policy_status', lambda self, overrides=None: 'disabled' if self.name == 'shodan' else 'configured')
+    result = await unified.enrich_indicator_all('8.8.8.8')
+    assert not any(call.args[0] == 'shodan' for call in routed.await_args_list)
+    assert not any(row['provider'] == 'shodan' for row in result['provider_results'])
+    assert {'provider': 'shodan', 'status': 'disabled'} in result['providers_skipped']
+
+@pytest.mark.asyncio
 async def test_partial_failure_is_not_clean(routed):
     async def fake(name, value, kind, meta):
         if name == 'otx':
