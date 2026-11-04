@@ -1,100 +1,255 @@
-# MMCY Unified Threat Intelligence Platform
+# Unified Threat Intelligence Platform
 
-This repository extends the uploaded application. The FastAPI dashboard API and FastMCP tools share `app/services/unified.py`. Existing provider APIs, user administration, audits and local ATT&CK operations remain available. See `ARCHITECTURE_ASSESSMENT.md` for the baseline assessment and `IMPLEMENTATION_STATUS.md` for verification and release blockers.
+Investigate public IP addresses, domains, URLs, and file hashes from a web dashboard or an AI agent using the Model Context Protocol (MCP).
 
-## Expanded MCP (November 2026)
+The platform combines provider reports, local threat feeds, vulnerability context, and security reference search in one service. Provider failures and missing credentials are shown explicitly. Network ownership, open ports, popularity, and historical observations are presented as context rather than automatic proof of malicious activity.
 
-The server now offers 44 tools, 20 passive source capabilities, local reference/feed search, bulk investigations, optional breach metadata and a human approval queue for URL/file analysis. See [EXPANDED_MCP_GUIDE.md](EXPANDED_MCP_GUIDE.md) for capabilities, credentials, dataset imports, approval guarantees and remaining external dependencies. Passive IOC lookups never submit scans; optional DNS is policy-controlled.
+## Features
 
-## What changed
+- **Unified IOC enrichment:** query compatible sources together, or choose a specific provider.
+- **44 MCP tools:** typed tools for IOC enrichment, source lookups, bounded bulk investigations and pivots, CVE research, and local search.
+- **20 registered source capabilities:** including VirusTotal, AbuseIPDB, GreyNoise, AlienVault OTX, ThreatFox, URLhaus, MalwareBazaar, Shodan, IPinfo, Pulsedive, Spur, Censys, Cloudflare Radar, RDAP, and certificate transparency.
+- **Local intelligence:** synchronize feeds and import ATT&CK, Sigma, LOLBAS, GTFOBins, HijackLibs, WADComs, and D3FEND references.
+- **Vulnerability context:** NVD, FIRST EPSS, and CISA Known Exploited Vulnerabilities.
+- **Dashboard administration:** accounts, provider controls, source details, audit records, and submission review.
+- **Optional URL/file analysis:** requests require administrator review before anything is sent to a provider. Disabled by default.
+- **Optional exposure tools:** breach metadata and password-hash checks, with separate consent and configuration requirements.
 
-- Unified search is the dashboard's initial workflow. URLs route both full URL and hostname representations to capable adapters. Public IP URL literals also route to eligible IP adapters; target hostnames are not resolved by default; optional DoH is policy-controlled.
-- The capability registry controls input types, IP versions/hash algorithms, adapter method, credentials, commercial gates, passive policy, reliability tiers, deadlines, retries, cache TTLs and pacing.
-- Database provider switches apply to unified and legacy lookups, including MCP. Environment kill switches and licensing gates cannot be overridden in the UI.
-- Provider execution isolates failures, uses bounded concurrency/deadlines, one bounded retry for transient failures, an in-memory TTL/LRU cache, request coalescing and Retry-After cooldowns. Search deadline is 55 seconds plus bounded policy loading. Cache, health and quotas are per worker, not distributed; split vendor quotas between API/MCP and workers before production.
-- The normalized report has `schema_version: 1.0`, request IDs, query representations, per-lookup status and source detail, evidence and conservative assessment. MCP receives a compact projection with coverage/failures and investigation steps.
-- Correlation separates contextual registration/history/pulse associations from threat evidence, collapses duplicate source records, groups shared references and feed ownership, and extracts related IOCs only from explicit IOC fields. Independent upstream provenance is not verified, so evidence yields `suspicious`, not an automatic `malicious` verdict. Source confidence is never averaged into a fabricated system score.
-- HTTP MCP requires an active analyst/admin platform identity and checks revocable token versions. Its tool calls are audited without raw arguments. This intentionally closes prior unauthenticated HTTP access.
+Not every provider supports every indicator type. Credentials, account permissions, terms, and quotas determine which capabilities are available.
 
-## Local setup
+## Quick start with Docker
 
-Use Python 3.12+ and Node 24. Install backend dependencies into a virtual environment:
+### 1. Get the source
+
+Install Git and Docker with the Compose plugin. On Windows or macOS, start Docker Desktop and use Linux containers.
+
+```sh
+git clone https://github.com/saledream/mmcy-threat-intelligence.git threat-intelligence
+cd threat-intelligence
+```
+
+Copy the configuration template:
+
+```sh
+# Linux / macOS
+cp .env.example .env
+```
 
 ```powershell
+# Windows PowerShell
+Copy-Item .env.example .env
+```
+
+### 2. Configure your installation
+
+Edit `.env`. Supply your own database password and a random JWT secret of at least 32 characters. For example, generate a secret with Python:
+
+```sh
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+Use separate random values for the password and JWT secret. A minimal configuration is:
+
+```dotenv
+POSTGRES_DB=threat_intel
+POSTGRES_USER=threat_intel
+POSTGRES_PASSWORD=REPLACE_WITH_A_RANDOM_DATABASE_PASSWORD
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+JWT_SECRET_KEY=REPLACE_WITH_A_RANDOM_SECRET_AT_LEAST_32_CHARACTERS
+
+MCP_AUTH_MODE=none
+MCP_HOST=127.0.0.1
+```
+
+Keep the other template settings unless you need to change them. No provider keys are included in this repository. You can start without paid integrations and add credentials later.
+
+For your own non-business use, set:
+
+```dotenv
+INTEL_USAGE_MODE=personal
+VIRUSTOTAL_USAGE_MODE=personal
+ABUSECH_USAGE_MODE=personal
+```
+
+These settings select application policy; they do not grant provider access or change provider terms. For business use, retain commercial mode and enable authorization flags only after confirming that your subscription permits the intended use.
+
+### 3. Build and start
+
+```sh
+docker compose up -d --build
+docker compose ps
+```
+
+After the API is healthy, create the first dashboard administrator:
+
+```sh
+docker compose exec threat-intel-api python -m app.api.bootstrap_admin
+```
+
+Follow the prompts. The password must contain at least 12 characters. Bootstrap refuses to create another administrator once one exists.
+
+### 4. Open the dashboard
+
+| Service | Local address |
+|---|---|
+| Dashboard | http://localhost:3005 |
+| API health | http://localhost:8000/api/health |
+| MCP endpoint | http://127.0.0.1:3002/mcp |
+
+Log in with the administrator account you created. Review provider settings, then search for a public indicator such as `8.8.8.8`.
+
+The Compose configuration publishes services on loopback. Inside the MCP container, Compose sets `MCP_HOST=0.0.0.0` so that port forwarding works; the host port remains bound to `127.0.0.1`.
+
+## Add provider API keys
+
+Store credentials in your local `.env`, never in source code or an agent prompt.
+
+| Provider / capability | Configuration |
+|---|---|
+| VirusTotal | `VIRUSTOTAL_API_KEY` |
+| AbuseIPDB | `ABUSEIPDB_API_KEY` |
+| GreyNoise | `GREYNOISE_API_KEY` |
+| AlienVault OTX | `OTX_API_KEY` |
+| ThreatFox, URLhaus, MalwareBazaar | `ABUSECH_API_KEY`; review usage mode |
+| Shodan authenticated host reports | `SHODAN_API_KEY` |
+| IPinfo Lite | `IPINFO_TOKEN` |
+| Pulsedive | `PULSEDIVE_API_KEY` |
+| Spur | `SPUR_TOKEN` |
+| Censys Platform | `CENSYS_API_TOKEN`; optional `CENSYS_ORG_ID` |
+| Cloudflare Radar | `CLOUDFLARE_API_TOKEN`; no account ID required |
+| Cloudflare URL Scanner | Token, `CLOUDFLARE_ACCOUNT_ID`, and `PROVIDER_CLOUDFLARE_URLSCANNER_ENABLED=true` |
+| urlscan | `URLSCAN_API_KEY` for account-dependent operations |
+| NVD | Optional `NVD_API_KEY` |
+| Optional breach lookups | `HIBP_API_KEY` / `HUDSONROCK_API_KEY`, as applicable; separate identity opt-in required |
+
+RDAP, certificate transparency, Shodan InternetDB, and several public datasets do not require a provider key, although terms, policy gates, and rate limits still apply. Local feed search needs imported data. DNS-over-HTTPS and Cloudflare URL Scanner are disabled by default.
+
+After changing `.env`, recreate services so they receive the new values:
+
+```sh
+docker compose up -d --force-recreate
+```
+
+A configured key is not proof of permission to every endpoint. A `forbidden` response may indicate insufficient account access; a rate limit or provider error is not a clean result.
+
+VirusTotal personal mode maintains a persistent request counter and enforces 4 requests per rolling minute and 500 per rolling 24 hours. Requests from unrelated tools using the same key are outside that local counter.
+
+## Connect an AI agent
+
+The template selects **local MCP without authentication**. Agents need only the MCP URL; no bearer token or token renewal is required. Dashboard login and administrator submission approval remain enabled.
+
+For Hermes, add this to your own `config.yaml`:
+
+```yaml
+mcp_servers:
+  threat_intelligence:
+    url: http://127.0.0.1:3002/mcp
+```
+
+For other clients, add a Streamable HTTP MCP server using the same URL through the client's supported configuration interface. The client must run on the same host, or have an explicitly configured secure connection to it.
+
+Try these agent requests:
+
+- "Show which threat intelligence providers are configured."
+- "Investigate 8.8.8.8 and separate threat evidence from network context."
+- "Look up this SHA-256 hash without submitting or downloading a file."
+- "Explain the available evidence for a CVE using NVD, EPSS, and KEV."
+
+The main unified tool is:
+
+```text
+enrich_indicator_all(indicator="8.8.8.8")
+```
+
+Provider-specific lookup is also available:
+
+```text
+provider_lookup(provider="shodan", indicator="8.8.8.8")
+```
+
+Unauthenticated local agents share one anonymous identity. For access by other users or over a network, configure `MCP_AUTH_MODE=platform` or `oidc`, authentication, and TLS before changing the loopback bindings. Provider API keys stay on the server in every mode.
+
+## Import feeds and references
+
+Downloaded intelligence and reference corpora are not bundled with the source. A fresh installation starts without those local datasets.
+
+Synchronize feeds once:
+
+```sh
+docker compose exec threat-intel-api python -m app.services.feeds --once
+```
+
+Or run the optional recurring feed worker:
+
+```sh
+docker compose --profile feeds up -d
+```
+
+Import reference corpora through the dashboard, or import individual supported corpora from the container:
+
+```sh
+docker compose exec threat-intel-api python -m app.services.knowledge attack
+docker compose exec threat-intel-api python -m app.services.knowledge sigma
+```
+
+Some feeds require credentials. OpenPhish requires reviewing its terms and setting `OPENPHISH_TERMS_ACCEPTED=true`. Dataset licenses and notices remain those of their upstream publishers.
+
+## Optional URL and file submissions
+
+Passive lookups retrieve existing reports; they do not submit a scan or upload a sample.
+
+To allow submission requests, explicitly set `ENABLE_SUBMISSIONS=true` and configure the relevant provider. An administrator must review the exact payload and disclosure acknowledgement in **Analysis Approvals** before execution. MCP tools can request analysis but cannot approve it.
+
+Supported workflows include VirusTotal URL/file analysis and urlscan or Cloudflare URL analysis. Files are limited to 16 MiB. Pending payloads are encrypted, expire after 15 minutes, and bind approval to the exact operation. Interrupted submissions can be marked uncertain and are not automatically resubmitted.
+
+Provider sharing rules still apply: standard VirusTotal submissions may be shared, and unlisted URL reports are not confidential storage. Submit only data you are authorized to disclose.
+
+## Data, privacy, and operation
+
+- Never commit `.env`, API keys, passwords, or local intelligence databases.
+- Configure `INTERNAL_DOMAIN_SUFFIXES` for private namespaces before investigating sensitive indicators. Private and reserved IP inputs are rejected for external enrichment.
+- URL indicators are sent as data to selected providers; passive enrichment does not fetch the target URL. Optional DNS resolution is separately controlled.
+- PostgreSQL accounts and audit data persist in `postgres_data`; intelligence state, imports, and quota files persist in `intel_data`.
+- Back up both data volumes and protect configuration secrets. Changing encryption keys can make existing encrypted records unreadable.
+- `docker compose down` stops the stack while preserving volumes. Adding `-v` deletes those volumes.
+- Provider caches, pacing, and cooldowns are per process. Multi-worker deployments need a quota allocation strategy.
+- Results are investigative evidence, not a guarantee that an indicator is safe or malicious. Preserve source attribution and distinguish first-seen dates from current activity.
+
+## Development and checks
+
+For development outside Docker, use Python 3.12+ and Node.js 24. The Docker images use Python 3.13 and Node.js 24.
+
+```sh
 python -m venv .venv
-.venv/Scripts/python -m pip install -r requirements-dev.txt
-.venv/Scripts/python -m pytest -q
+```
+
+Activate the virtual environment using your shell, then run:
+
+```sh
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
 npm ci --prefix frontend
 npm run lint --prefix frontend
 npm run build --prefix frontend
 ```
 
-Copy `.env.example` to a protected `.env` and supply database/JWT secrets through approved secret management. Never commit it. JWT_SECRET_KEY must be at least 32 characters. Configure `INTERNAL_DOMAIN_SUFFIXES` with MMCY's internal namespaces, including internal hosts beneath public DNS suffixes. The platform cannot infer whether an arbitrary public-looking URL contains confidential information; submit only indicators approved for third-party disclosure.
+For a native backend process, configure a reachable PostgreSQL host and port in `.env`. The Compose database is exposed locally at `127.0.0.1:5433`. Run the API with `uvicorn app.api.main:app --host 127.0.0.1 --port 8000`. Run HTTP MCP with `python -m app.main`; its native default port is 3000. Set `MCP_TRANSPORT=stdio` for a local stdio client.
 
-All network lookups are passive. HTTP IOC strings are supported as provider data; the application never connects to the target HTTP URL. Public IP checks reject multicast, reserved, private, link-local, mapped and transition addresses. RDAP service endpoints must be HTTPS, resolve exclusively to permitted public addresses, and are pinned to a checked address with the original TLS certificate hostname. Redirects/referrals are skipped. No certificate validation is disabled.
+The automated suite previously passed 144 tests. This does not establish that every provider account, Docker environment, or identity provider is operational. Test your own deployment and required integrations.
 
-## Docker deployment
+## Troubleshooting
 
-1. Make Docker's Linux daemon available and populate `.env` securely.
-2. Optionally supply an approved ATT&CK STIX bundle as `data/mitre/enterprise-attack.json`. The archive does not contain a dataset. Its absence is reported clearly.
-3. Run `docker compose build` and `docker compose up -d`. API startup creates missing tables, including the additive `provider_settings` table. Back up PostgreSQL before upgrades; no existing table is dropped.
-4. Bootstrap the first admin interactively with `docker compose exec threat-intel-api python -m app.api.bootstrap_admin`.
-5. Open the loopback frontend at `http://localhost:3005`. API listens on loopback port 8000, MCP on loopback port 3002. Configure an authenticated TLS reverse proxy for enterprise access, trusted hosts and allowed origins. Use HSTS only once HTTPS is configured.
-6. Confirm `docker compose ps`, API health, login, roles, provider policy, a permitted passive lookup, source attribution and MCP authentication. Never enable active submissions as part of this workflow.
+| Symptom | What to check |
+|---|---|
+| Docker cannot connect | Start Docker Desktop or the Linux Docker daemon. |
+| API startup fails | Database credentials, PostgreSQL health, and a JWT secret of at least 32 characters. |
+| Dashboard cannot reach the API | `docker compose logs threat-intel-api threat-intel-frontend`; internal API URL and allowed origins. |
+| Provider is not configured | Add its key in `.env` and recreate services. |
+| Provider requires authorization | Review its usage mode, terms, and authorization flags. |
+| Provider returns 403 | Account permissions or endpoint entitlement; do not interpret this as no threat found. |
+| Provider returns 429 | Wait for its quota window; reduce requests and check other applications using the key. |
+| Local reference search is empty | Import the required reference corpus or synchronize feeds. |
+| Agent cannot connect | Use port 3002 for Compose, confirm the client can reach the host, and check MCP logs/authentication mode. |
 
-The frontend bind address/port is configurable; the uploaded hardcoded private address was removed. Do not expose PostgreSQL or plain HTTP bearer tokens on untrusted networks. Provider authorization and admin switches are separate: enabling a provider does not supply keys or approve licenses.
-
-Compose configuration can be checked without a local `.env` by setting nonsecret test database values in the shell and running `docker compose --env-file .env.example config --no-env-resolution --quiet`. This is a configuration check, not deployment validation.
-
-## Hermes and other MCP clients
-
-HTTP endpoint: `http://127.0.0.1:3002/mcp` (or the approved TLS reverse-proxy address).
-
-Use a dedicated analyst account. Obtain its short-lived access token from the existing `POST /api/auth/login` using approved credential handling, and configure the MCP client's Authorization header as a bearer token. Token expiry defaults to 30 minutes; the client must reauthenticate when it expires. Logout, deactivation and role changes revoke existing sessions. No permanent shared service secret or unauthenticated fallback was added.
-
-The primary tool remains:
-
-```text
-enrich_indicator_all(indicator="https://public-host.example.org/path")
-```
-
-Legacy provider-specific tools remain registered with their original signatures. The unified tool is registered before module startup enters the HTTP server. Hermes itself was not supplied or connected; the offline MCP client/HTTP authentication tests are not a Hermes connectivity claim. Adapt the approved Hermes configuration to its supported HTTP/header mechanism rather than copying invented client configuration keys.
-
-## Adding a provider
-
-1. Verify official API documentation, terms, supported types/algorithms and passive operation. Record source links in `PROVIDER_REFERENCE.md`. Do not scrape unsupported services.
-2. Add an adapter under `app/providers/` that performs passive HTTPS requests to fixed provider endpoints, never to arbitrary target URLs. Keep credentials server-side, avoid redirects/credential forwarding, and return explicit statuses for no-match, malformed responses, errors, rate limits and authorization failures.
-3. Add one capability in `services/registry.py` and its module to `MODULES`; `lookup_method` selects the adapter method. Extend the dispatch argument mapping only if the adapter needs additional typed context. Both REST and MCP discover it from the same registry.
-4. Add evidence normalization only for actual returned fields. Registry registration alone makes the provider queryable; unrecognized result fields must not create threat claims. Mark contextual records accurately and preserve source references and observation dates.
-5. Add mocked HTTP contract tests and routing, failure, privacy and licensing tests. Configure timeout/retry/cache/pacing for MMCY's licensed quota. Verify the shared UI source-detail renderer handles its returned fields.
-
-Provider adapters are not authorized to submit scans, upload files, retrieve malware, remediate or block assets. Those operations require a separately reviewed, explicitly authorized workflow and are absent here.
-
-## Operational boundaries
-
-- Configuration status does not verify a credential, license or live connectivity. Health shows the latest lookup seen by the current worker only.
-- API and MCP caches/budgets are independent and memory-only. For multiple workers/replicas, allocate per-worker budgets or add a shared quota/cache service before scaling. Vendor 429 cooldowns are honored locally. The code does not assert compliance with unknown paid plan quotas.
-- RDAP queries the exact hostname. A subdomain may have no record even when a parent domain is registered; no guessed parent registration is represented as a match. HTTP-only RDAP services and referrals are explicitly skipped.
-- Search progress reports the request's pending state, not fabricated per-provider percentages. Results arrive as a bounded consolidated response; this is not streaming.
-- SessionStorage bearer tokens preserve the existing frontend design and are sensitive to XSS. Deploy with reviewed TLS/proxy/content-security policy and dependency controls. A future HttpOnly-cookie migration needs CSRF and MCP separation design.
-- Audit indicators now use keyed HMAC-SHA256. Old unkeyed digests remain historical data and are not directly comparable; rotating JWT_SECRET_KEY changes new digest identities and revokes signed sessions.
-- Existing create-all startup is preserved. A migration framework, central quota/health service and enterprise SSO remain future operational improvements, not implemented claims.
-
-
-## Personal VirusTotal testing
-
-For your own personal, non-business use, set `VIRUSTOTAL_USAGE_MODE=personal` and configure `VIRUSTOTAL_API_KEY` privately in `.env`. Keep `VIRUSTOTAL_COMMERCIAL_AUTHORIZED=false`. The default usage mode remains commercial, preserving the original MMCY deployment guard. Unsupported/empty modes fail closed.
-
-The adapter reserves each real personal API request against a persistent SQLite quota file (`VIRUSTOTAL_QUOTA_DB`, default `data/virustotal-personal-quota.sqlite3`), enforcing 4 requests per rolling minute and 500 per rolling 24 hours. Retries count too; cache hits do not. Store the quota file on a persistent writable location shared by local API/MCP processes using the same key. A missing/unwritable quota store blocks calls. The counter cannot observe requests made with your key by unrelated tools, so VirusTotal's own remaining quota and HTTP 429 response remain authoritative. Do not delete/reset the quota file to bypass limits.
-
-A personal-mode Docker deployment needs a persistent writable quota volume; the default read-only commercial Compose setup does not provide one. No URL submissions, file uploads or sample downloads are added. The key is sent only server-side in the provider's API header and is never displayed by the dashboard. Never paste it in chat or commit it. See VirusTotal's current terms at https://docs.virustotal.com/reference/public-vs-premium-api .
-
-
-IP endpoints such as `124.221.142.210:443` and `[2606:4700:4700::1111]:443` preserve the original input and port context. Providers that accept IP reports receive only the canonical IP. A port is not interpreted as a scan request, a confirmed open service, or a URL scheme.
-
-
-For personal community use of ThreatFox/URLhaus/MalwareBazaar, set `ABUSECH_USAGE_MODE=personal` and supply `ABUSECH_API_KEY`. The commercial authorization flag remains false. The default mode for deployed business use stays commercial and still requires an explicit permitted-access attestation. Keys remain required in either mode.
-
-Agent compatibility and connection checks are documented in [AGENT_COMPATIBILITY.md](AGENT_COMPATIBILITY.md). All 44 tools now include descriptions. The authenticated analyst-client workflow and a real Hermes AIAgent model run passed. Source-filter normalization and conservative evidence guidance were strengthened afterward; the follow-up model run encountered an external HTTP 429. The Windows Hermes gateway remains a separate setup limitation.
-
-For the current personal setup, MCP authentication is disabled (`MCP_AUTH_MODE=none`, loopback binding). Agents connect by URL without a token or expiry. Dashboard login and human submission approval remain enabled. See `AGENT_COMPATIBILITY.md`.
+More adapter and dataset details are in [the expanded capability guide](EXPANDED_MCP_GUIDE.md). Historical implementation and test notes describe earlier development environments; use the setup and endpoint instructions above for a fresh installation.
