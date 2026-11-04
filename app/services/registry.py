@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass, asdict
 from app.providers.abusech_policy import authorized as abusech_authorized
 from app.providers import extended
-from app.providers import abuseipdb, greynoise, otx, threatfox, urlhaus, malwarebazaar, rdap, urlscan, virustotal
+from app.providers import abuseipdb, greynoise, otx, threatfox, urlhaus, malwarebazaar, urlscan, virustotal
 
 
 @dataclass(frozen=True)
@@ -58,7 +58,6 @@ CAPABILITIES = (
     Capability('threatfox', ('ip', 'domain', 'url', 'hash'), 'search_ioc', 'ABUSECH_API_KEY', 'ABUSECH_COMMERCIAL_AUTHORIZED', hash_types=('md5', 'sha256'), reliability='high', provenance_group='abusech'),
     Capability('urlhaus', ('url',), 'check_url', 'ABUSECH_API_KEY', 'ABUSECH_COMMERCIAL_AUTHORIZED', reliability='high', provenance_group='abusech'),
     Capability('malwarebazaar', ('hash',), 'check_hash', 'ABUSECH_API_KEY', 'ABUSECH_COMMERCIAL_AUTHORIZED', reliability='high', provenance_group='abusech'),
-    Capability('rdap', ('domain',), 'lookup_domain', reliability='authoritative_context', cache_ttl_seconds=3600),
     Capability('urlscan', ('ip', 'domain', 'url'), 'search_history', licensing='Historical search only; account quotas and terms apply'),
     Capability('shodan', ('ip',), 'lookup', 'SHODAN_API_KEY', accepts_context=True, reliability='exposure_context', provenance_group='shodan', licensing='Authenticated host-report entitlement required; queries Shodan records only, never requests a scan'),
     Capability('shodan_internetdb', ('ip',), 'lookup', accepts_context=True, reliability='exposure_context', provenance_group='shodan', commercial_env='SHODAN_COMMERCIAL_AUTHORIZED', cache_ttl_seconds=3600),
@@ -73,7 +72,7 @@ CAPABILITIES = (
     Capability('local_feeds', ('ip','domain','url','hash'), 'lookup', accepts_context=True, reliability='feed_context'),
     Capability('virustotal', ('ip', 'domain', 'url', 'hash'), 'lookup', 'VIRUSTOTAL_API_KEY', 'VIRUSTOTAL_COMMERCIAL_AUTHORIZED', licensing='Personal Public API: 4/minute, 500/day; commercial workflows require licensed authorization', reliability='high', min_interval_seconds=15.0),
 )
-MODULES = {m.__name__.rsplit('.', 1)[-1]: m for m in (abuseipdb, greynoise, otx, threatfox, urlhaus, malwarebazaar, rdap, urlscan, virustotal)}
+MODULES = {m.__name__.rsplit('.', 1)[-1]: m for m in (abuseipdb, greynoise, otx, threatfox, urlhaus, malwarebazaar, urlscan, virustotal)}
 
 MODULES.update({c.name:extended for c in CAPABILITIES if c.accepts_context})
 

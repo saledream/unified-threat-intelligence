@@ -10,8 +10,6 @@ Reviewed 2026-11-04. These links document contracts; offline tests do not prove 
 | ThreatFox | https://threatfox.abuse.ch/api/ | `search_ioc` for observables; `search_hash` for MD5/SHA256 associations; SHA1 not supported by hash search; records older than six months may be absent |
 | MalwareBazaar | https://bazaar.abuse.ch/api/ | Passive `get_info` hash lookup; no sample downloads or uploads |
 | URLhaus | https://urlhaus.abuse.ch/api/ | Preserve inherited passive URL lookup contract; current bulk API documentation requires account access, so live entitlement/contract verification remains a release gate |
-| IANA RDAP | https://data.iana.org/rdap/dns.json | Bootstrap discovery, cached 24h; HTTPS services only; DNS pinning and no referral redirects |
-| RDAP schema | https://www.rfc-editor.org/rfc/rfc9083 | Registration events, entities, nameservers and status are context |
 | urlscan | https://docs.urlscan.io/pages/search-api-reference | Historical GET search; exact domain/URL keyword fields; no scan submission or result fetch to target sites |
 | urlscan API | https://docs.urlscan.io/apis/urlscan-openapi/search | Search endpoint and pagination/result limits; returned verdicts used only when actually present |
 | VirusTotal | https://docs.virustotal.com/reference/public-vs-premium-api | Personal Public API mode supported with 4/minute and 500/day limits; business workflows still require licensed authorization and a server-side key |

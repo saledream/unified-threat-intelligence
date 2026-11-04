@@ -1,9 +1,8 @@
 """Provider request contracts use HTTPX MockTransport, never external calls."""
 import json
-from unittest.mock import AsyncMock
 import httpx
 import pytest
-from app.providers import threatfox, otx, urlscan, virustotal, rdap
+from app.providers import threatfox, otx, urlscan, virustotal
 
 @pytest.fixture
 def mock_http(monkeypatch):
@@ -55,32 +54,6 @@ async def test_virustotal_existing_url_report_only(monkeypatch,mock_http):
     res.append((404,{},{}))
     assert (await virustotal.lookup('https://example.org/a','url'))['status']=='not_found'
     assert req[0].method=='GET' and req[0].url.path.startswith('/api/v3/urls/')
-
-async def test_rdap_pins_public_destination_and_preserves_tls_host(monkeypatch,mock_http):
-    req,res=mock_http
-    async def unused():pass
-    monkeypatch.setattr(rdap.socket,'getaddrinfo',lambda *a,**kw:[(2,1,6,'',('8.8.8.8',443))])
-    res.append((200,{'handle':'test'},{}))
-    await rdap.safe_get('https://rdap.provider.org/domain/example.org')
-    assert req[0].url.host=='8.8.8.8'
-    assert req[0].headers['Host']=='rdap.provider.org'
-    assert req[0].extensions['sni_hostname']=='rdap.provider.org'
-
-async def test_rdap_rebinding_private_answer_is_rejected(monkeypatch,mock_http):
-    req,_=mock_http
-    monkeypatch.setattr(rdap.socket,'getaddrinfo',lambda *a,**kw:[(2,1,6,'',('127.0.0.1',443))])
-    with pytest.raises(ValueError):
-        await rdap.safe_get('https://rdap.provider.org/domain/example.org')
-    assert not req
-
-async def test_rdap_referral_is_not_followed(monkeypatch):
-    import time
-    monkeypatch.setattr(rdap,'_bootstrap',{'services':[[['org'],['https://rdap.provider.org/']]]})
-    monkeypatch.setattr(rdap,'_bootstrap_until',time.monotonic()+3600)
-    get=AsyncMock(return_value=httpx.Response(302,headers={'Location':'http://127.0.0.1/'}))
-    monkeypatch.setattr(rdap,'safe_get',get)
-    assert (await rdap.lookup_domain('example.org'))['status']=='skipped'
-    assert get.await_count==1
 
 async def test_personal_mode_uses_public_report_endpoint_without_commercial_flag(monkeypatch,mock_http,tmp_path):
     req,res=mock_http

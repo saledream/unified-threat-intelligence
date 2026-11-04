@@ -47,7 +47,7 @@ async def test_url_queries_both_representations(routed):
     for name in ('otx','threatfox','urlscan','virustotal'):
         assert (name,'https://example.org/a?x=1','url') in calls
         assert (name,'example.org','domain') in calls
-    assert ('rdap','example.org','domain') in calls
+    assert not any(name == 'rdap' for name, _, _ in calls)
     assert not any(name in ('abuseipdb','greynoise') for name,_,_ in calls)
     assert result['normalized_representations']['domain'] == 'example.org'
 

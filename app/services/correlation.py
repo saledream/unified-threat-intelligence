@@ -112,8 +112,6 @@ def correlate(results, primary_indicator=''):
         elif p == 'virustotal' and ((r.get('malicious') or 0) > 0 or (r.get('suspicious') or 0) > 0):
             rows.append({'kind': 'multi_engine_detection', 'malicious': r.get('malicious'),
                          'suspicious': r.get('suspicious'), 'analysis_at':r.get('analysis_at'), 'last_seen': r.get('last_seen'), 'reference': r.get('source_url')})
-        elif p == 'rdap':
-            context.append({**common, 'kind': 'registration_context', 'reference': r.get('source_url')})
         elif p == 'pulsedive':
             risk=r.get('risk')
             if isinstance(risk,str) and risk.lower() in ('high','critical'):

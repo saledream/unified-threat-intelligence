@@ -12,6 +12,6 @@ async def test_virustotal_requires_explicit_commercial_authorization(monkeypatch
 
 def test_registry_contains_phase3_sources():
     names={c.name for c in CAPABILITIES}
-    assert {"rdap","urlscan","virustotal"} <= names
+    assert {"urlscan","virustotal"} <= names
     otx=next(c for c in CAPABILITIES if c.name=="otx")
     assert set(otx.types)=={"ip","domain","url","hash"}

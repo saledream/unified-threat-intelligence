@@ -20,5 +20,5 @@ def offline_provider_environment(monkeypatch,tmp_path):
     monkeypatch.setenv('ABUSECH_COMMERCIAL_AUTHORIZED','false')
     monkeypatch.setenv('ABUSECH_USAGE_MODE','commercial')
     monkeypatch.setenv('INTERNAL_DOMAIN_SUFFIXES','')
-    for name in ('ABUSEIPDB','GREYNOISE','OTX','THREATFOX','URLHAUS','MALWAREBAZAAR','RDAP','URLSCAN','VIRUSTOTAL'):
+    for name in ('ABUSEIPDB','GREYNOISE','OTX','THREATFOX','URLHAUS','MALWAREBAZAAR','URLSCAN','VIRUSTOTAL'):
         monkeypatch.setenv(f'PROVIDER_{name}_ENABLED','true')

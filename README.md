@@ -40,7 +40,7 @@ Edit `.env` locally, or the Environment editor when using Dokploy. Leave unused 
 | Cloudflare Radar | `CLOUDFLARE_API_TOKEN` |
 | urlscan | `URLSCAN_API_KEY` for account-dependent operations |
 
-RDAP, certificate transparency, Shodan InternetDB, and public datasets have keyless capabilities, subject to their terms and policy gates. Cloudflare Radar does not need an account ID. The optional Cloudflare URL Scanner history integration needs its own permissions, account ID, and enable switch.
+Certificate transparency, Shodan InternetDB, and public datasets have keyless capabilities, subject to their terms and policy gates. Cloudflare Radar does not need an account ID. The optional Cloudflare URL Scanner history integration needs its own permissions, account ID, and enable switch.
 
 For your own non-business use:
 
