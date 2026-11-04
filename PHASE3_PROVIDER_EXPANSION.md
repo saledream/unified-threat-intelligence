@@ -5,7 +5,7 @@ Implemented passive integrations for OTX multi-indicator lookup, IANA-bootstrap 
 ## Configuration
 - `OTX_API_KEY`: enables OTX.
 - `URLSCAN_API_KEY`: recommended for urlscan quotas; historical search only, never URL submission.
-- `VIRUSTOTAL_API_KEY` plus `VIRUSTOTAL_COMMERCIAL_AUTHORIZED=true`: both are required. Do not set the authorization flag for a Community/public key in an MMCY commercial workflow.
+- `VIRUSTOTAL_API_KEY` plus `VIRUSTOTAL_COMMERCIAL_AUTHORIZED=true`: both are required. Do not set the authorization flag for a Community/public key in an commercial workflow.
 
 RDAP requires no API key. It discovers the authoritative RDAP service through the IANA DNS bootstrap registry.
 

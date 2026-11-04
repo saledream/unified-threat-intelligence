@@ -23,8 +23,10 @@ Not every provider supports every indicator type. Credentials, account permissio
 
 Install Git and Docker with the Compose plugin. On Windows or macOS, start Docker Desktop and use Linux containers.
 
+Copy this repository's clone URL from GitHub's **Code** menu, then replace `<repository-url>` below:
+
 ```sh
-git clone https://github.com/saledream/mmcy-threat-intelligence.git threat-intelligence
+git clone <repository-url> threat-intelligence
 cd threat-intelligence
 ```
 

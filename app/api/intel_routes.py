@@ -32,7 +32,7 @@ router = APIRouter(prefix="/api", tags=["Threat Intelligence"])
 
 @router.get("/health")
 def health():
-    return {"status": "ok", "service": "MMCY Threat Intelligence API"}
+    return {"status": "ok", "service": "Unified Threat Intelligence API"}
 
 
 @router.get("/providers/status")

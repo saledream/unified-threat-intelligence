@@ -25,7 +25,7 @@ class PlatformTokenVerifier(TokenVerifier):
             user_id = await asyncio.to_thread(check)
             if user_id is None:
                 return None
-            return AccessToken(token=token, client_id=f'mmcy-user-{user_id}', subject=str(user_id),
+            return AccessToken(token=token, client_id=f'intel-user-{user_id}', subject=str(user_id),
                                scopes=['intel:read'], expires_at=int(claims['exp']), claims=claims)
         except (jwt.InvalidTokenError, KeyError, ValueError, TypeError):
             return None

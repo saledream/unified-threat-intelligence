@@ -28,10 +28,10 @@ Shared registry-driven REST/MCP engine; URL plus hostname routing; public IPv4/I
 
 1. Restore a working Docker Linux daemon. `docker info` found no engine pipe; `docker desktop start --detach` failed because its Docker Desktop registry entry is missing. Build and run the complete stack against PostgreSQL; verify startup, persistence, non-root/read-only containers, service health and reverse proxy.
 2. Run the latest frontend standalone production build on the deployment platform and browser smoke test that artifact; resolve/avoid this host's Windows filesystem packaging failure.
-3. MMCY must confirm approved provider terms/licenses, configure credentials privately, set appropriate plan quotas and internal DNS suffixes, and perform permitted live response/429/failure tests. No credentials or licenses were assumed.
+3. Operators must confirm approved provider terms/licenses, configure credentials privately, set appropriate plan quotas and internal DNS suffixes, and perform permitted live response/429/failure tests. No credentials or licenses were assumed.
 4. Supply an approved ATT&CK STIX bundle; its absence is reported as dataset_missing/HTTP 503.
 5. Configure Hermes with an authorized analyst identity over the approved TLS MCP endpoint and verify the actual client transport, token renewal and one-call enrichment. No Hermes environment was supplied.
-6. Allocate provider budgets across API/MCP workers or implement shared distributed quotas before scaling. Cache/health/cooldowns currently remain per worker. Review TLS/CSP, retention, SSO requirements and migration/backup operations with MMCY before release.
+6. Allocate provider budgets across API/MCP workers or implement shared distributed quotas before scaling. Cache/health/cooldowns currently remain per worker. Review TLS/CSP, retention, SSO requirements and migration/backup operations with your deployment team before release.
 
 No active scanning, uploads, malware downloads, blocking, containment, Talos scraping or unlicensed VirusTotal access was added. Overall maliciousness is deliberately not inferred from provider count; upstream independence remains unverified.
 

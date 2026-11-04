@@ -116,7 +116,7 @@ export default function UserManagement({ apiFetch, currentUserId }: Props) {
         <div className="search-panel-copy">
           <div className="search-label"><Users size={15}/> ADMINISTRATION</div>
           <h2>User management</h2>
-          <p>Create and manage employee access to the MMCY Threat Intelligence workspace.</p>
+          <p>Create and manage employee access to the Unified Threat Intelligence workspace.</p>
         </div>
         <div className="ip-form-options">
           <span><ShieldCheck size={14}/> Administrator access only</span>

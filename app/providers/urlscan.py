@@ -13,7 +13,7 @@ async def search_history(value: str, kind: str) -> dict:
     if not field:
         return {"status": "unsupported_indicator_type"}
     query = f'{field}:"{_escape(value)}"'
-    headers = {"Accept": "application/json", "User-Agent": "MMCY-ThreatIntel/1.0"}
+    headers = {"Accept": "application/json", "User-Agent": "ThreatIntel/1.0"}
     key = os.getenv("URLSCAN_API_KEY", "").strip()
     if key: headers["API-Key"] = key
     try:

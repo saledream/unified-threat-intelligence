@@ -1,8 +1,8 @@
 services:
   threat-intel-mcp:
     build: .
-    image: mmcy-threat-intel-mcp:latest
-    container_name: mmcy-threat-intel-mcp
+    image: threat-intel-mcp:latest
+    container_name: threat-intel-mcp
     restart: unless-stopped
     ports:
       - "127.0.0.1:3002:3000"
@@ -29,8 +29,8 @@ services:
 
   threat-intel-api:
     build: .
-    image: mmcy-threat-intel-mcp:latest
-    container_name: mmcy-threat-intel-api
+    image: threat-intel-mcp:latest
+    container_name: threat-intel-api
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3)"]
@@ -67,8 +67,8 @@ services:
       dockerfile: Dockerfile
       args:
         API_INTERNAL_URL: http://threat-intel-api:8000
-    image: mmcy-threat-intel-frontend:latest
-    container_name: mmcy-threat-intel-frontend
+    image: threat-intel-frontend:latest
+    container_name: threat-intel-frontend
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -89,7 +89,7 @@ services:
 
   postgres:
     image: postgres:17-alpine
-    container_name: mmcy-threat-intel-db
+    container_name: threat-intel-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
@@ -111,7 +111,7 @@ services:
   threat-intel-feeds:
     profiles: ["feeds"]
     build: .
-    image: mmcy-threat-intel-mcp:latest
+    image: threat-intel-mcp:latest
     command: ["python", "-m", "app.services.feeds"]
     restart: unless-stopped
     env_file: [.env]

@@ -27,7 +27,7 @@ CORPORA={
 async def _download(url,max_bytes=80_000_000):
     # All callers build URLs from the fixed catalog and validated commit IDs.
     async with httpx.AsyncClient(timeout=60,follow_redirects=False,trust_env=False) as client:
-        async with client.stream('GET',url,headers={'User-Agent':'MMCY-ThreatIntel/2.0'}) as r:
+        async with client.stream('GET',url,headers={'User-Agent':'ThreatIntel/2.0'}) as r:
             r.raise_for_status(); chunks=[]; size=0
             async for chunk in r.aiter_bytes():
                 size+=len(chunk)

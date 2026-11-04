@@ -28,7 +28,7 @@ async def request(method,url,*,params=None,headers=None,data=None,json=None,file
     parsed=urlsplit(url)
     if parsed.scheme!='https' or parsed.hostname not in ALLOWED_HOSTS or parsed.username or parsed.password or parsed.port not in (None,443):
         return {'status':'blocked','error':'Unsupported external provider destination'}
-    safe_headers={'Accept':'application/json','User-Agent':'MMCY-ThreatIntel/2.0',**(headers or {})}
+    safe_headers={'Accept':'application/json','User-Agent':'ThreatIntel/2.0',**(headers or {})}
     try:
         async with httpx.AsyncClient(timeout=timeout,follow_redirects=False,trust_env=False) as client:
             async with client.stream(method,url,params=params,headers=safe_headers,data=data,json=json,files=files) as response:

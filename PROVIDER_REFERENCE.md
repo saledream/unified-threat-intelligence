@@ -14,10 +14,10 @@ Reviewed 2026-11-04. These links document contracts; offline tests do not prove 
 | RDAP schema | https://www.rfc-editor.org/rfc/rfc9083 | Registration events, entities, nameservers and status are context |
 | urlscan | https://docs.urlscan.io/pages/search-api-reference | Historical GET search; exact domain/URL keyword fields; no scan submission or result fetch to target sites |
 | urlscan API | https://docs.urlscan.io/apis/urlscan-openapi/search | Search endpoint and pagination/result limits; returned verdicts used only when actually present |
-| VirusTotal | https://docs.virustotal.com/reference/public-vs-premium-api | Personal Public API mode supported with 4/minute and 500/day limits; MMCY business workflows still require licensed authorization and a server-side key |
+| VirusTotal | https://docs.virustotal.com/reference/public-vs-premium-api | Personal Public API mode supported with 4/minute and 500/day limits; business workflows still require licensed authorization and a server-side key |
 | VirusTotal reports | https://docs.virustotal.com/reference/url | Existing report GET only; no analysis submission |
-| Cisco | https://developer.cisco.com/threat-grid/ | Supported Secure Malware Analytics APIs exist; no generic public Talos lookup endpoint is assumed. MMCY must identify licensed product/access before an adapter is added |
+| Cisco | https://developer.cisco.com/threat-grid/ | Supported Secure Malware Analytics APIs exist; no generic public Talos lookup endpoint is assumed. Operators must identify licensed product/access before an adapter is added |
 
 SecurityTrails, Shodan and Censys are deferred pending a concrete intelligence use case, account entitlements, costs, privacy review and quota allocations. No integrations were added simply to increase the provider count.
 
-`VIRUSTOTAL_COMMERCIAL_AUTHORIZED` and `ABUSECH_COMMERCIAL_AUTHORIZED` are operator attestations, not license validators. For MMCY business use, leave them false until permitted access is confirmed. Personal VirusTotal testing uses `VIRUSTOTAL_USAGE_MODE=personal` without setting the commercial flag. Commercial flags must not be used as a workaround for community restrictions or missing entitlements.
+`VIRUSTOTAL_COMMERCIAL_AUTHORIZED` and `ABUSECH_COMMERCIAL_AUTHORIZED` are operator attestations, not license validators. For business use, leave them false until permitted access is confirmed. Personal VirusTotal testing uses `VIRUSTOTAL_USAGE_MODE=personal` without setting the commercial flag. Commercial flags must not be used as a workaround for community restrictions or missing entitlements.

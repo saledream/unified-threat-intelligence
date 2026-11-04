@@ -29,8 +29,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="MMCY Threat Intelligence API",
-    description="Internal human-facing API for MMCY Threat Intelligence.",
+    title="Unified Threat Intelligence API",
+    description="Human-facing API for unified threat intelligence.",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/api/docs",
@@ -96,7 +96,7 @@ app.include_router(expanded_router)
 @app.get("/")
 def root():
     return {
-        "service": "MMCY Threat Intelligence API",
+        "service": "Unified Threat Intelligence API",
         "status": "ready",
         "docs": "/api/docs",
     }

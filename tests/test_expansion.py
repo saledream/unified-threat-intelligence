@@ -219,3 +219,14 @@ def test_local_source_aliases_do_not_create_false_empty_results():
         assert result['source_filter']=='feed:threatfox'
         assert len(result['records'])==1
     assert search_local('124.221.142.210','misspelled-source')['status']=='invalid_parameter'
+
+
+def test_storage_derivation_survives_branding_changes(monkeypatch):
+    """Records encrypted by earlier releases must remain readable."""
+    from cryptography.fernet import Fernet
+    monkeypatch.setenv('INTEL_STORAGE_KEY', '')
+    monkeypatch.setenv('JWT_SECRET_KEY', 'offline-only-test-secret-which-is-long-enough')
+    historical_cipher = Fernet(b'fYBBMiBoIMPHh6IpkVon9pi8FVZI2cSuCSeoQwxag7U=')
+    payload = historical_cipher.encrypt(b'{"existing_record":true}')
+    assert store.unseal(payload) == {'existing_record': True}
+    assert json.loads(historical_cipher.decrypt(store.seal({'new_record': True}))) == {'new_record': True}

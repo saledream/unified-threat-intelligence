@@ -36,7 +36,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
       <section className="login-brand-side">
         <div className="login-brand">
           <div className="login-brand-icon"><Shield size={25} /></div>
-          <div><strong>MMCY<span>INTEL</span></strong><small>THREAT INTELLIGENCE</small></div>
+          <div><strong>THREAT<span>INTEL</span></strong><small>THREAT INTELLIGENCE</small></div>
         </div>
         <div className="login-message">
           <div className="login-overline"><span /> INTELLIGENCE. CLARITY. CONTROL.</div>
@@ -46,20 +46,20 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
           <div className="login-feature"><Activity size={17} /><span>Multiple intelligence sources</span></div>
           <div className="login-feature"><LockKeyhole size={17} /><span>Role-based access control</span></div>
         </div>
-        <div className="login-side-footer">MMCY · INTERNAL INTELLIGENCE WORKSPACE</div>
+        <div className="login-side-footer">UNIFIED INTELLIGENCE WORKSPACE</div>
       </section>
 
       <section className="login-form-side">
         <div className="login-form-wrap">
           <div className="login-mobile-brand">
             <div className="login-brand-icon"><Shield size={22} /></div>
-            <strong>MMCY<span>INTEL</span></strong>
+            <strong>THREAT<span>INTEL</span></strong>
           </div>
           <div className="login-form-heading">
             <div className="login-form-icon"><LockKeyhole size={20} /></div>
             <div className="login-overline">SECURE ACCESS</div>
             <h2>Welcome back</h2>
-            <p>Sign in with your MMCY workspace account.</p>
+            <p>Sign in with your workspace account.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
@@ -103,8 +103,8 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
             </button>
           </form>
 
-          <div className="login-security"><LockKeyhole size={13} /><span>Your session is protected by MMCY authentication controls.</span></div>
-          <div className="login-bottom">MMCY THREAT INTELLIGENCE <span>·</span> INTERNAL USE ONLY</div>
+          <div className="login-security"><LockKeyhole size={13} /><span>Your session is protected by workspace authentication controls.</span></div>
+          <div className="login-bottom">UNIFIED THREAT INTELLIGENCE <span>·</span> INTERNAL USE ONLY</div>
         </div>
       </section>
     </main>

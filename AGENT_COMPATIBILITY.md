@@ -1,4 +1,4 @@
-# Connect an AI agent to the local MMCY MCP
+# Connect an AI agent to the local threat intelligence MCP
 
 ## Current personal configuration: no authentication
 
@@ -8,11 +8,11 @@ Hermes profile `config.yaml`:
 
 ```yaml
 mcp_servers:
-  mmcy:
+  threat_intelligence:
     url: http://127.0.0.1:18545/mcp
 ```
 
-No `headers` block or `MMCY_AGENT_TOKEN` variable is needed. Port 18545 is the running local test harness; the Compose host endpoint is port 3002. This does not change your normal Hermes profile automatically. A client on another machine cannot reach this machine through its own localhost.
+No `headers` block or `AGENT_TOKEN` variable is needed. Port 18545 is the running local test harness; the Compose host endpoint is port 3002. This does not change your normal Hermes profile automatically. A client on another machine cannot reach this machine through its own localhost.
 
 The dashboard/API still requires its normal login. Human approval for URL/file submissions is preserved. MCP exposes no approval tool; a dashboard administrator reviews the exact payload and disclosure before sending. Unauthenticated local MCP clients share the `local:anonymous` request principal, so there is no per-agent identity isolation in this mode. Tool calls continue to be audited as anonymous local calls.
 

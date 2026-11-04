@@ -162,7 +162,7 @@ export default function Home() {
         <div className="brand">
           <div className="brand-mark"><Shield size={23} strokeWidth={2.1} /></div>
           <div>
-            <div className="brand-name">MMCY<span>INTEL</span></div>
+            <div className="brand-name">THREAT<span>INTEL</span></div>
             <div className="brand-caption">THREAT INTELLIGENCE</div>
           </div>
           <button className="mobile-close" onClick={() => setMobileOpen(false)} aria-label="Close menu"><X size={19} /></button>
@@ -170,7 +170,7 @@ export default function Home() {
 
         <div className="workspace-switch">
           <div className="workspace-avatar">M</div>
-          <div className="workspace-copy"><strong>MMCY Workspace</strong><span>Internal environment</span></div>
+          <div className="workspace-copy"><strong>Intelligence Workspace</strong><span>Internal environment</span></div>
           <ChevronDown size={15} className="muted-icon" />
         </div>
 
@@ -228,7 +228,7 @@ export default function Home() {
               <p className="page-description">
                 {active === "Overview"
                   ? "Your unified workspace for external threat intelligence and indicator investigation."
-                  : `Explore ${active.toLowerCase()} through the MMCY intelligence services.`}
+                  : `Explore ${active.toLowerCase()} through the threat intelligence services.`}
               </p>
             </div>
             <div className="heading-date"><Activity size={15} /> INTERNAL WORKSPACE</div>
@@ -367,7 +367,7 @@ export default function Home() {
             </section>
           )}
 
-          <footer className="page-footer"><span>MMCY THREAT INTELLIGENCE</span><span>INTERNAL USE ONLY <i /> AUTHENTICATED WORKSPACE</span></footer>
+          <footer className="page-footer"><span>UNIFIED THREAT INTELLIGENCE</span><span>INTERNAL USE ONLY <i /> AUTHENTICATED WORKSPACE</span></footer>
         </div>
       </main>
     </div>

@@ -14,9 +14,9 @@ def test_url_disclosure_bypasses_rejected(value):
     assert not validate_indicator(value,'url')['valid']
 
 def test_configured_enterprise_suffix_is_blocked(monkeypatch):
-    monkeypatch.setenv('INTERNAL_DOMAIN_SUFFIXES','mmcy.org')
-    assert not validate_indicator('https://private.mmcy.org/a','url')['valid']
-    assert validate_indicator('https://notmmcy.org/a','url')['valid']
+    monkeypatch.setenv('INTERNAL_DOMAIN_SUFFIXES','example.org')
+    assert not validate_indicator('https://private.example.org/a','url')['valid']
+    assert validate_indicator('https://notexample.org/a','url')['valid']
 
 def test_idna_and_url_normalization():
     assert validate_indicator('BÜCHER.DE.','domain')['indicator']=='xn--bcher-kva.de'

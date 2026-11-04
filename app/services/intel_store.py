@@ -44,7 +44,8 @@ def cipher():
         secret=os.getenv('JWT_SECRET_KEY','')
         if len(secret)<32:
             raise RuntimeError('INTEL_STORAGE_KEY or a strong JWT secret is required for protected storage')
-        key=base64.urlsafe_b64encode(hashlib.sha256(('mmcy-storage:'+secret).encode()).digest()).decode()
+        # Preserve the historical derivation namespace so existing ciphertext remains readable.
+        key=base64.urlsafe_b64encode(hashlib.sha256(bytes.fromhex('6d6d63792d73746f726167653a') + secret.encode()).digest()).decode()
     return Fernet(key.encode())
 
 

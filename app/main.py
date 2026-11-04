@@ -20,7 +20,7 @@ import re
 #load_dotenv()
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env"))
 mcp = FastMCP(
-    name="MMCY Threat Intelligence",
+    name="Unified Threat Intelligence",
     auth=build_auth(),
     middleware=[AuditMiddleware()],
     instructions=(
@@ -108,11 +108,11 @@ def get_attack_technique(technique_id: str) -> dict:
     return get_technique(technique_id)
 
 
-def print_mmcy_banner():
+def print_server_banner():
     print(r"""
 ╔══════════════════════════════════════════════════════════╗
 ║                                                          ║
-║                         MMCY                             ║
+║                  THREAT INTELLIGENCE                     ║
 ║                                                          ║
 ║                THREAT INTELLIGENCE MCP                   ║
 ║                                                          ║
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     if transport=='stdio':
         mcp.run(transport='stdio',show_banner=False)
     elif transport=='http':
-        print_mmcy_banner()
+        print_server_banner()
         mcp.run(
         transport=transport,
         host=os.getenv("MCP_HOST", "127.0.0.1"),
