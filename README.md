@@ -19,6 +19,8 @@ Not every provider supports every indicator type. Credentials, account permissio
 
 ## Quick start with Docker
 
+For a hosted deployment with Dokploy, follow the [Dokploy deployment guide](DOKPLOY.md) and select `compose.dokploy.yaml`.
+
 ### 1. Get the source
 
 Install Git and Docker with the Compose plugin. On Windows or macOS, start Docker Desktop and use Linux containers.

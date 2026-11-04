@@ -1,0 +1,157 @@
+# Dokploy: select this standalone Compose file, not an override.
+# Route only threat-intel-frontend:3000 through the Domains tab.
+services:
+  threat-intel-mcp:
+    build: .
+    restart: unless-stopped
+    env_file:
+    - .env
+    environment:
+      POSTGRES_HOST: postgres
+      MCP_HOST: 0.0.0.0
+      MCP_AUTH_MODE: none
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set a random JWT secret of at least 32 characters}
+      POSTGRES_PORT: '5432'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      threat-intel-api:
+        condition: service_healthy
+    volumes:
+    - intel_data:/app/data
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    read_only: true
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m
+    init: true
+    networks:
+    - default
+    ports:
+    - 127.0.0.1:${MCP_HOST_PORT:-3002}:3000
+  threat-intel-api:
+    build: .
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health',
+        timeout=3)
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command:
+    - uvicorn
+    - app.api.main:app
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8000'
+    env_file:
+    - .env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: '5432'
+      CORS_ALLOWED_ORIGINS: https://${PUBLIC_HOSTNAME:?Set the dashboard hostname}
+      ALLOWED_HOSTS: localhost,127.0.0.1,threat-intel-api,${PUBLIC_HOSTNAME:?Set the
+        dashboard hostname}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set a random JWT secret of at least 32 characters}
+    volumes:
+    - intel_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    read_only: true
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m
+    init: true
+    networks:
+    - default
+  threat-intel-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        API_INTERNAL_URL: http://threat-intel-api:8000
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_URL: http://threat-intel-api:8000
+    depends_on:
+      threat-intel-api:
+        condition: service_healthy
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    read_only: true
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m
+    init: true
+    networks:
+    - default
+    - dokploy-network
+    expose:
+    - '3000'
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    security_opt:
+    - no-new-privileges:true
+    init: true
+    networks:
+    - default
+  threat-intel-feeds:
+    profiles:
+    - feeds
+    build: .
+    command:
+    - python
+    - -m
+    - app.services.feeds
+    restart: unless-stopped
+    env_file:
+    - .env
+    volumes:
+    - intel_data:/app/data
+    security_opt:
+    - no-new-privileges:true
+    cap_drop:
+    - ALL
+    read_only: true
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m
+    init: true
+    networks:
+    - default
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: '5432'
+volumes:
+  postgres_data: null
+  intel_data: null
+networks:
+  default: {}
+  dokploy-network:
+    external: true
