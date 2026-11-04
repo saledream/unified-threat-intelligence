@@ -1,3 +1,5 @@
+> Historical development notes. The current deployment is an account-free search page with 41 passive MCP tools. See [README.md](README.md) for current behavior; prior authentication, administration, and submission interfaces described below have been removed.
+
 # Repository assessment and implementation roadmap
 
 Assessment date: 2026-11-04. Baseline commit: `6fbb843`. The original uploaded ZIP remains unchanged. Historical PHASE documents describe prior work and are not current verification evidence.

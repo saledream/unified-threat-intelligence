@@ -90,14 +90,8 @@ async def lookup(cap: Capability, value: str, kind: str, meta: dict) -> dict:
 
 
 def load_overrides() -> dict:
-    # Offline library use needs no database. Deployed API/MCP share PostgreSQL settings.
-    if not all(os.getenv(k) for k in ('POSTGRES_DB', 'POSTGRES_USER', 'POSTGRES_PASSWORD')):
-        return {}
-    from sqlalchemy import select
-    from app.database import SessionLocal
-    from app.models import ProviderSetting
-    with SessionLocal() as db:
-        return {row.name: row.enabled for row in db.scalars(select(ProviderSetting)).all()}
+    # Provider policy is configured server-side through environment variables.
+    return {}
 
 
 def provider_status() -> dict:

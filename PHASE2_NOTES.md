@@ -1,3 +1,5 @@
+> Historical development notes. The current deployment is an account-free search page with 41 passive MCP tools. See [README.md](README.md) for current behavior; prior authentication, administration, and submission interfaces described below have been removed.
+
 # Phase 2 — Incremental unified IOC engine
 
 Implemented: shared provider capability registry, IOC type detection, validated routing, concurrent execution, bounded per-provider timeouts, failure isolation, unified MCP tool, authenticated REST endpoint `POST /api/enrichment/unified`, and offline regression tests.

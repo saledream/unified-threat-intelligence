@@ -1,5 +1,3 @@
-# Dokploy: select this standalone Compose file, not an override.
-# Route only threat-intel-frontend:3000 through the Domains tab.
 services:
   threat-intel-mcp:
     build: .
@@ -7,14 +5,10 @@ services:
     env_file:
     - .env
     environment:
-      POSTGRES_HOST: postgres
       MCP_HOST: 0.0.0.0
       MCP_AUTH_MODE: none
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set a random JWT secret of at least 32 characters}
-      POSTGRES_PORT: '5432'
+      ENABLE_SUBMISSIONS: 'false'
     depends_on:
-      postgres:
-        condition: service_healthy
       threat-intel-api:
         condition: service_healthy
     volumes:
@@ -54,17 +48,12 @@ services:
     env_file:
     - .env
     environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: '5432'
       CORS_ALLOWED_ORIGINS: https://${PUBLIC_HOSTNAME:?Set the dashboard hostname}
       ALLOWED_HOSTS: localhost,127.0.0.1,threat-intel-api,${PUBLIC_HOSTNAME:?Set the
         dashboard hostname}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set a random JWT secret of at least 32 characters}
+      ENABLE_SUBMISSIONS: 'false'
     volumes:
     - intel_data:/app/data
-    depends_on:
-      postgres:
-        condition: service_healthy
     security_opt:
     - no-new-privileges:true
     cap_drop:
@@ -101,27 +90,6 @@ services:
     - dokploy-network
     expose:
     - '3000'
-  postgres:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
-      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-    volumes:
-    - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test:
-      - CMD-SHELL
-      - pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    security_opt:
-    - no-new-privileges:true
-    init: true
-    networks:
-    - default
   threat-intel-feeds:
     profiles:
     - feeds
@@ -146,10 +114,8 @@ services:
     networks:
     - default
     environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: '5432'
+      ENABLE_SUBMISSIONS: 'false'
 volumes:
-  postgres_data: null
   intel_data: null
 networks:
   default: {}

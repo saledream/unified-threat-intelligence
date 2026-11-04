@@ -1,3 +1,5 @@
+> Historical development notes. The current deployment is an account-free search page with 41 passive MCP tools. See [README.md](README.md) for current behavior; prior authentication, administration, and submission interfaces described below have been removed.
+
 # Expansion verification — 4 November 2026
 
 The latest expansion is described in `EXPANDED_MCP_GUIDE.md`; baseline observations below are historical where superseded. Current local dataset import succeeded for ATT&CK, Sigma, LOLBAS, GTFOBins, HijackLibs, WADComs and D3FEND (11,501 indexed references). Nine feed synchronizations succeeded (16,294 records at retrieval). OpenPhish remains gated on terms acceptance.

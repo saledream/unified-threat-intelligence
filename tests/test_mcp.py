@@ -22,7 +22,6 @@ async def test_no_auth_mode_accepts_client_without_token(monkeypatch):
 def test_anonymous_requests_have_a_distinct_local_principal(monkeypatch):
     from app.expanded_tools import principal
     monkeypatch.setenv('MCP_AUTH_MODE','none')
-    monkeypatch.setattr('app.expanded_tools.get_access_token',lambda:None)
     assert principal()=='local:anonymous'
 
 async def test_mcp_lists_unified_and_legacy_tools():
@@ -39,7 +38,7 @@ def test_module_registers_unified_tool_before_starting_server():
     captured=[]
     def run(self,**kwargs):
         captured.extend(t.name for t in asyncio.run(self.list_tools()))
-        assert self.auth is not None
+        assert self.auth is None
     with patch.dict(sys.modules):
         sys.modules.pop('app.main', None)
         with patch('fastmcp.FastMCP.run',run):

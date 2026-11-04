@@ -1,3 +1,5 @@
+> Historical development notes. The current deployment is an account-free search page with 41 passive MCP tools. See [README.md](README.md) for current behavior; prior authentication, administration, and submission interfaces described below have been removed.
+
 # Phase 3 provider expansion
 
 Implemented passive integrations for OTX multi-indicator lookup, IANA-bootstrap RDAP domain registration, urlscan.io historical search, licensed VirusTotal v3 report lookup.

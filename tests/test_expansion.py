@@ -149,10 +149,9 @@ async def test_mcp_no_approval_tool_and_no_submission_on_request(monkeypatch):
     monkeypatch.setenv('ENABLE_SUBMISSIONS','false')
     async with Client(mcp) as client:
         names={t.name for t in await client.list_tools()}
-        assert {'request_url_analysis','lookup_cve','search_reference','bulk_lookup_iocs'}<=names
+        assert {'lookup_cve','search_reference','bulk_lookup_iocs'}<=names
         assert not any('approve' in n or 'execute' in n for n in names)
-        result=await client.call_tool('request_url_analysis',{'url':'https://example.com/'})
-        assert result.data['status']=='disabled'
+        assert not {'request_url_analysis','get_submission_request','poll_analysis'} & names
 
 @pytest.mark.asyncio
 async def test_internal_dns_never_disclosed(monkeypatch):
@@ -187,11 +186,11 @@ async def test_pivots_only_observed_bounded_depth(monkeypatch):
     assert seen==['example.com','8.8.8.8']
     assert result['limits']['depth']==1
 
-def test_oidc_fails_closed_without_configuration(monkeypatch):
+def test_authentication_is_disabled_even_with_legacy_settings(monkeypatch):
     from app.auth.factory import build_auth
     monkeypatch.setenv('MCP_AUTH_MODE','oidc')
-    monkeypatch.setenv('OIDC_CONFIG_URL','')
-    with pytest.raises(ValueError,match='incomplete'):build_auth()
+    assert build_auth() is None
+
 
 def test_agent_output_hard_bound_and_truncation_visible():
     from app.services.projection import compact_result

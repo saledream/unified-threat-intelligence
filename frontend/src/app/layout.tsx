@@ -1,21 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/lib/auth";
-import AuthGate from "@/components/auth-gate";
-
-export const metadata: Metadata = {
-  title: "Unified Threat Intelligence",
-  description: "Unified threat intelligence workspace",
-};
-
+export const metadata: Metadata = { title: "Threat Intelligence", description: "Search an indicator across threat intelligence sources." };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <body>
-        <AuthProvider>
-          <AuthGate>{children}</AuthGate>
-        </AuthProvider>
-      </body>
-    </html>
-  );
+  return <html lang="en"><body>{children}</body></html>;
 }

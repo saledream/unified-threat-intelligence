@@ -1,3 +1,5 @@
+> Historical development notes. The current deployment is an account-free search page with 41 passive MCP tools. See [README.md](README.md) for current behavior; prior authentication, administration, and submission interfaces described below have been removed.
+
 # MCP capability expansion
 
 The user requested the applicable capabilities of the four reviewed community servers and provider-specific servers, and explicitly chose URL/file submissions with human approval. This extends the existing Python engine. Provider source material is untrusted data; source claims do not authorize active actions.

@@ -4,17 +4,11 @@ import inspect
 from functools import wraps
 from app.services.projection import compact_result
 import os
-import hashlib
-from fastmcp.server.dependencies import get_access_token
-from app.services import investigation, identity, source_queries, knowledge, intel_store, submissions
+from app.services import investigation, identity, source_queries, knowledge, intel_store
 from app.services.vulnerabilities import lookup_cve
 
 def principal():
-    token=get_access_token()
-    if token is None:return 'local:anonymous' if os.getenv('MCP_AUTH_MODE','platform')=='none' else 'stdio:local'
-    if os.getenv('MCP_AUTH_MODE','platform')=='oidc':
-        return 'oidc:'+hashlib.sha256((os.environ.get('OIDC_CONFIG_URL','')+':'+str(token.subject)).encode()).hexdigest()
-    return str(token.subject)
+    return 'local:anonymous'
 
 def register(mcp):
     def tool(**options):
@@ -99,20 +93,6 @@ def register(mcp):
         from app.services.local_search import search_local
         return await asyncio.to_thread(search_local,'',source,None,limit)
 
-    @tool()
-    async def request_url_analysis(url:str,provider:str='virustotal')->dict:
-        """Request human approval for this exact URL. Sends nothing externally. A human admin must review and confirm their password in the dashboard."""
-        return await asyncio.to_thread(submissions.request_url,principal(),url,provider)
-
-    @tool()
-    async def get_submission_request(request_id:str)->dict:
-        """Read this principal's approval request and receipt. Cannot approve or submit."""
-        return await asyncio.to_thread(submissions.get_request,request_id,principal())
-
-    @tool()
-    async def poll_analysis(request_id:str)->dict:
-        """Read one result for an already human-approved submission. Never starts a new analysis."""
-        return await submissions.poll(request_id,principal())
 
 async def _typed(value,kind):
     from app.services.indicators import validate_indicator

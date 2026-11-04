@@ -1,3 +1,5 @@
+> Historical development notes. The current deployment is an account-free search page with 41 passive MCP tools. See [README.md](README.md) for current behavior; prior authentication, administration, and submission interfaces described below have been removed.
+
 # Expanded Threat Intelligence MCP
 
 The existing unified engine, legacy tools and dashboard remain available. New adapters and services were independently implemented using official source contracts. No upstream server is installed or executed, and no community scoring algorithm was copied.
